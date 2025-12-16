@@ -1,0 +1,135 @@
+name: 📋 Project Brief
+description: Submit a project brief that will be automatically converted to Epic(s)
+title: ""
+labels: ["brief"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Project Brief Submission
+        This brief will be automatically analyzed by Claude and converted into one or more Epics.
+        Keep descriptions concise and focused. Use bullet points where possible.
+
+  - type: input
+    id: project-name
+    attributes:
+      label: Project Name
+      description: Short, descriptive name for this project/feature
+      placeholder: "e.g., User Authentication System"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: project-type
+    attributes:
+      label: Project Type
+      description: What type of work is this?
+      options:
+        - "New Feature"
+        - "Enhancement"
+        - "Technical Debt"
+        - "Integration"
+        - "Bug Fix"
+        - "Infrastructure"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: overview
+    attributes:
+      label: Project Overview
+      description: What needs to be built and why? Include business value and problem being solved.
+      placeholder: |
+        Describe the project goals, objectives, and why it's important.
+        Keep under 500 characters for simple projects.
+
+        Example: "Build a two-factor authentication system to improve account security and meet compliance requirements. Current system only uses passwords, creating security risks."
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope & Requirements
+      description: What features and functionality should be included? Use one bullet point per feature/requirement.
+      placeholder: |
+        - User can enable 2FA via SMS or authenticator app
+        - Admin dashboard shows 2FA adoption metrics
+        - Integration with existing user management system
+        - Backup codes for account recovery
+    validations:
+      required: true
+
+  - type: textarea
+    id: success-criteria
+    attributes:
+      label: Success Criteria
+      description: How will we know this project is complete? What defines "done"?
+      placeholder: |
+        - Users can successfully enable and use 2FA
+        - 95% of authentication tests pass
+        - Security audit completed
+        - Documentation published
+    validations:
+      required: false
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Technical Constraints & Dependencies
+      description: Any technical limitations, dependencies, or must-use technologies?
+      placeholder: |
+        - Must use existing authentication API
+        - Requires database schema migration
+        - Depends on User Service v2.0 release
+        - Must support mobile and web clients
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How urgent is this project?
+      options:
+        - "Critical - Blocking other work"
+        - "High - Important for next release"
+        - "Medium - Nice to have soon"
+        - "Low - Future consideration"
+    validations:
+      required: false
+
+  - type: input
+    id: stakeholders
+    attributes:
+      label: Stakeholders
+      description: Key stakeholders and decision makers (use @mentions)
+      placeholder: "@username1 @username2"
+    validations:
+      required: false
+
+  - type: textarea
+    id: technical-context
+    attributes:
+      label: Technical Context
+      description: Current tech stack, relevant systems, or architectural notes
+      placeholder: |
+        - Backend: Node.js + Express
+        - Frontend: React
+        - Database: PostgreSQL
+        - Existing auth uses JWT tokens
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Links to designs, research, related issues, or other documentation
+      placeholder: |
+        - Design mockups: [link]
+        - Related issue: #123
+        - Technical research: [link]
+    validations:
+      required: false
