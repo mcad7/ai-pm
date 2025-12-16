@@ -1,0 +1,183 @@
+name: Process Brief to EPIC
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  process-brief:
+    if: |
+      github.event.label.name == 'process' &&
+      contains(github.event.issue.labels.*.name, 'brief')
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Process Brief with Claude Code Action
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            You are an AI Product Manager assistant. A Project Brief has been submitted and needs to be converted into an EPIC issue.
+
+            ## CONTEXT
+            - Brief Issue Number: #${{ github.event.issue.number }}
+            - Brief Title: ${{ github.event.issue.title }}
+            - Repository: ${{ github.repository }}
+
+            ## YOUR TASK
+
+            ### Step 1: Read the Brief
+            Read issue #${{ github.event.issue.number }} and extract all information from the YAML form fields:
+            - project-name (Project Name)
+            - project-type (Project Type dropdown)
+            - overview (Project Overview)
+            - scope (Scope & Requirements)
+            - success-criteria (Success Criteria) - may be empty
+            - constraints (Technical Constraints & Dependencies) - may be empty
+            - priority (Priority dropdown) - may be empty
+            - stakeholders (Stakeholders) - may be empty
+            - technical-context (Technical Context) - may be empty
+            - additional-context (Additional Context) - may be empty
+
+            ### Step 2: Create EPIC Issue
+
+            Create a new issue with the following structure:
+
+            **TITLE FORMAT:**
+            ```
+            [EPIC] {Project Name from brief}
+            ```
+
+            **BODY CONTENT:**
+            ```markdown
+            # Epic: {Project Name}
+
+            > **Source Brief:** #${{ github.event.issue.number }}
+            > **Type:** {Project Type from brief}
+            > **Priority:** {Priority Level from brief or "Not specified"}
+
+            ## Overview
+            {Copy the complete Project Overview from the brief here}
+
+            ## Business Value
+            {Extract or summarize the business value from the Overview. If not explicitly stated, infer it from the overview and scope.}
+
+            ## Scope & Requirements
+            {Copy the Scope & Requirements from the brief exactly as provided. Maintain bullet point format.}
+
+            ## Success Criteria
+            {If Success Criteria field has content, copy it here as bullet points.
+            If empty, generate 3-5 reasonable success criteria based on the scope and requirements.}
+
+            ## Technical Context
+
+            ### Dependencies & Constraints
+            {Copy Technical Constraints & Dependencies from brief. If empty, write "None specified"}
+
+            ### Tech Stack
+            {Copy Technical Context from brief. If empty, write "To be determined"}
+
+            ## Stakeholders
+            {Copy Stakeholders from brief. If empty, write "Not specified"}
+
+            ## Implementation Tracking
+
+            This EPIC will be broken down into User Stories and Tasks. Progress will be tracked here.
+
+            ### User Stories
+            - [ ] User stories to be created based on requirements analysis
+            - [ ] Add 'breakdown' label to this EPIC when ready to generate user stories
+
+            ### Definition of Done
+            - [ ] All user stories completed and verified
+            - [ ] Success criteria validated and met
+            - [ ] Code reviewed and merged to main branch
+            - [ ] Documentation updated
+            {For each success criterion above, add it as a checkbox here}
+
+            ## Additional Context
+            {Copy Additional Context from brief. If empty, omit this section entirely}
+
+            ---
+            *🤖 This EPIC was automatically generated from Brief #${{ github.event.issue.number }} using Claude Code Action*
+            ```
+
+            ### Step 3: Apply Labels to EPIC
+
+            Apply the following labels to the newly created EPIC issue:
+
+            **Always add:**
+            - `epic`
+
+            **Priority label (map from Brief Priority field):**
+            - If "Critical - Blocking other work" → add `critical`
+            - If "High - Important for next release" → add `high`
+            - If "Medium - Nice to have soon" → add `medium`
+            - If "Low - Future consideration" → add `low`
+            - If not selected/empty → add `medium` (default)
+
+            **Type label (map from Brief Project Type field):**
+            - If "New Feature" → add `feature`
+            - If "Enhancement" → add `enhancement`
+            - If "Technical Debt" → add `technical-debt`
+            - If "Integration" → add `integration`
+            - If "Bug Fix" → add `bug-fix`
+            - If "Infrastructure" → add `infrastructure`
+            - If "Other" → add `feature` (default)
+
+            ### Step 4: Update Original Brief
+
+            Add a comment to Brief issue #${{ github.event.issue.number }}:
+            ```
+            ✅ **EPIC Created**
+
+            Your brief has been processed and converted into an EPIC.
+
+            📋 **EPIC Issue:** #{EPIC_NUMBER}
+            🏷️ **Labels Applied:** epic, {priority-label}, {type-label}
+
+            The EPIC contains all information from this brief and is ready for breakdown into user stories.
+
+            ---
+            Next steps:
+            1. Review the EPIC structure
+            2. When ready to create user stories, add the 'breakdown' label to the EPIC
+            ```
+
+            ## IMPORTANT GUIDELINES
+
+            1. **Preserve all original content** from the Brief - don't summarize or paraphrase unless generating missing success criteria
+            2. **Use proper GitHub markdown** formatting with headings, bullet points, and checkboxes
+            3. **Task list syntax:** Use `- [ ]` for checkboxes (note the space between brackets)
+            4. **Link back prominently:** Ensure the source Brief link is at the top of the EPIC
+            5. **Handle missing fields gracefully:** If optional fields are empty, either write "Not specified" or omit the section
+            6. **Success criteria generation:** If the brief doesn't include success criteria, create 3-5 meaningful ones based on the requirements
+            7. **Be consistent:** Use the exact structure provided above
+
+            ## ERROR HANDLING
+
+            If you encounter any issues:
+            - **Cannot read Brief:** Comment on #${{ github.event.issue.number }}: "⚠️ Unable to read Brief issue. Please check the issue format."
+            - **Missing required fields:** Use reasonable defaults and note assumptions in EPIC
+            - **Label application fails:** Create the EPIC anyway and comment about label issues
+            - **Any other error:** Comment on Brief with error details and exit gracefully
+
+            Start by reading the Brief issue now.
+
+          claude_args: |
+            --model claude-sonnet-4-5-20250929
+            --max-turns 15
+
+          settings: |
+            {
+              "auto_continue": true,
+              "verbose": true
+            }

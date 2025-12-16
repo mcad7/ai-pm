@@ -1,0 +1,70 @@
+name: Setup Repository Labels
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup-labels:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Create or Update Labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = [
+              // Hierarchy Labels
+              { name: 'brief', color: 'E1D5E7', description: 'Project brief submitted by stakeholder' },
+              { name: 'epic', color: '8E44AD', description: 'Large body of work broken into user stories' },
+              { name: 'user-story', color: 'C39BD3', description: 'User-focused feature or requirement' },
+              { name: 'task', color: 'D7BDE2', description: 'Technical task or implementation work' },
+
+              // Process Labels
+              { name: 'process', color: '0E8A16', description: 'Trigger: Convert brief to epic' },
+
+              // Priority Labels
+              { name: 'critical', color: 'B60205', description: 'Critical - Blocking other work' },
+              { name: 'high', color: 'D93F0B', description: 'High - Important for next release' },
+              { name: 'medium', color: 'FBCA04', description: 'Medium - Nice to have soon' },
+              { name: 'low', color: 'FEF2C0', description: 'Low - Future consideration' },
+
+              // Type Labels
+              { name: 'feature', color: '1D76DB', description: 'New feature development' },
+              { name: 'enhancement', color: '5DADE2', description: 'Enhancement to existing feature' },
+              { name: 'technical-debt', color: '7D3C98', description: 'Technical debt or refactoring' },
+              { name: 'integration', color: '16A085', description: 'Integration with external systems' },
+              { name: 'bug-fix', color: 'E74C3C', description: 'Bug fix or correction' },
+              { name: 'infrastructure', color: '34495E', description: 'Infrastructure or DevOps work' }
+            ];
+
+            for (const label of labels) {
+              try {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+                console.log(`✅ Created label: ${label.name}`);
+              } catch (error) {
+                if (error.status === 422) {
+                  // Label exists, update it
+                  await github.rest.issues.updateLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    name: label.name,
+                    color: label.color,
+                    description: label.description
+                  });
+                  console.log(`🔄 Updated label: ${label.name}`);
+                } else {
+                  console.error(`❌ Failed to create/update label ${label.name}:`, error.message);
+                  throw error;
+                }
+              }
+            }
+
+            console.log('\n✅ Label setup complete! Total labels: ' + labels.length);
