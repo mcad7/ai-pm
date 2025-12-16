@@ -1,6 +1,6 @@
 name: 📋 Project Brief
 description: Submit a project brief that will be automatically converted to Epic(s)
-title: ""
+title: "[BRIEF] "
 labels: ["brief"]
 body:
   - type: markdown
