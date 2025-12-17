@@ -33,6 +33,23 @@ jobs:
             - Brief Title: ${{ github.event.issue.title }}
             - Repository: ${{ github.repository }}
 
+            ## IMPORTANT: TOOL USAGE
+
+            You have access to GitHub MCP (Model Context Protocol) tools built into this environment.
+            These tools provide direct access to GitHub operations.
+
+            **CRITICAL: DO NOT use Bash commands, gh CLI, or curl.**
+            **Use the native GitHub MCP operations instead.**
+
+            Available GitHub MCP operations you should use:
+            - Read issue data directly (read Brief issue #${{ github.event.issue.number }})
+            - Create new issues (create EPIC issue)
+            - Add labels to issues (apply epic, priority, type labels)
+            - Add comments to issues (comment on Brief with EPIC link)
+
+            GitHub MCP tools work directly with the GitHub API and do not require shell commands.
+            They are pre-authenticated and ready to use in this GitHub Actions environment.
+
             ## YOUR TASK
 
             ### Step 1: Read the Brief
