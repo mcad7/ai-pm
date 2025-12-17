@@ -198,5 +198,14 @@ jobs:
             {
               "auto_continue": true,
               "verbose": true,
-              "requireApproval": false
+              "requireApproval": false,
+              "mcpServers": {
+                "github": {
+                  "command": "npx",
+                  "args": ["-y", "@modelcontextprotocol/server-github"],
+                  "env": {
+                    "GITHUB_TOKEN": "${{ secrets.GITHUB_TOKEN }}"
+                  }
+                }
+              }
             }
