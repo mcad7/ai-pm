@@ -176,7 +176,6 @@ jobs:
           claude_args: |
             --model claude-sonnet-4-5-20250929
             --max-turns 15
-            --allowedTools "Read,GitHubGetIssue,GitHubCreateIssue,GitHubAddLabels,GitHubAddComment"
 
           settings: |
             {
